@@ -1,14 +1,12 @@
 // ==UserScript==
-// @name         YouTube Auto Skip Sponsor (SponsorBlock) + Segment Coloring
+// @name         Tự động bỏ qua đoạn không cần xem
 // @namespace    eTog205-skip
 // @version      1.7
 // @description  Tự động bỏ qua sponsor, intro, outro...
 // @author       Gỗ
-// @match        https://www.youtube.com/*
+// @match        https://www.youtube.com/watch*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=youtube.com
 // @grant        none
-// @updateURL    https://raw.githubusercontent.com/eTog205/skip_time_yt/main/sponsorblock.js
-// @downloadURL  https://raw.githubusercontent.com/eTog205/skip_time_yt/main/sponsorblock.js
 // ==/UserScript==
 
 (function () {

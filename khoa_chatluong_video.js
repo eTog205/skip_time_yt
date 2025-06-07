@@ -1,17 +1,16 @@
 // ==UserScript==
-// @name        YouTube: Auto Max Quality (with Live Toggle)
+// @name        Đặt chất lượng cho YouTube
 // @namespace   UserScripts
-// @match       https://www.youtube.com/*
-// @version     0.4.3
-// @description Tự động chọn chất lượng video cao nhất
+// @match       https://www.youtube.com/watch*
+// @version     0.7.0
+// @description Tự động chọn hoặc thủ công chọn chất lượng video
 // @grant       none
 // @run-at      document-start
 // ==/UserScript==
 
 (() => {
-  const STORAGE_KEY = "yt_auto_max_enabled";
-
-  let isEnabled = localStorage.getItem(STORAGE_KEY) !== "off";
+  const QUALITY_KEY = "yt_quality_override";
+  let qualityOverride = localStorage.getItem(QUALITY_KEY) || "";
 
   const waitForVideoElement = () =>
     new Promise((resolve) => {
@@ -30,21 +29,56 @@
       : null;
   };
 
+  const setQuality = (player, level) => {
+    if (!level) return;
+    player.setPlaybackQualityRange?.(level, level);
+    player.setPlaybackQuality?.(level);
+    console.log("✅ Đặt chất lượng:", level);
+  };
+
   const setBestQuality = (player) => {
     const levels = player.getAvailableQualityLevels?.();
     if (Array.isArray(levels) && levels.length) {
-      const best = levels.find((q) => q !== "auto");
-      if (best) {
-        player.setPlaybackQualityRange?.(best, best);
-        player.setPlaybackQuality?.(best);
-        console.log("✅ Auto set quality to", best);
+      console.log("📋 Danh sách chất lượng video có thể chọn:");
+      levels.forEach((q, i) => {
+        console.log(`  ${i + 1}. ${q}`);
+      });
+
+      const select = document.getElementById("yt-quality-toggle");
+      if (select) {
+        // Xóa tất cả option cũ trừ "on" nếu có
+        [...select.options].forEach(opt => {
+  if (opt.value !== "on") {
+    select.removeChild(opt);
+  }
+});
+
+
+        // Thêm lại tất cả chất lượng thực tế
+        levels.forEach((level) => {
+          if (!["on"].includes(level)) {
+            const opt = document.createElement("option");
+            opt.value = level;
+            opt.textContent = level === "auto" ? "⛔ Auto (Mặc định)" : `🟢 ${level}`;
+            if (level === qualityOverride) opt.selected = true;
+            select.appendChild(opt);
+          }
+        });
+      }
+
+      // Áp dụng chất lượng theo lựa chọn hiện tại
+      if (qualityOverride === "on") {
+        const best = levels.find((q) => q !== "auto");
+        if (best) setQuality(player, best);
+      } else if (levels.includes(qualityOverride)) {
+        setQuality(player, qualityOverride);
       }
     }
   };
 
   const applyAutoQualityNow = () => {
     const player = getPlayer();
-    if (player && isEnabled) {
+    if (player && qualityOverride) {
       setBestQuality(player);
     }
   };
@@ -55,9 +89,7 @@
     if (!player) return;
 
     video.addEventListener("loadeddata", () => {
-      if (isEnabled) {
-        setTimeout(() => setBestQuality(player), 200);
-      }
+      setTimeout(() => setBestQuality(player), 200);
     });
   };
 
@@ -65,43 +97,43 @@
     const select = document.createElement("select");
     select.id = "yt-quality-toggle";
     Object.assign(select.style, {
-  position: "fixed",
-  top: "10px",
-  left: "13.4vw", // Vị trí động theo % chiều rộng
-  zIndex: "9999",
-  padding: "6px 12px",
-  fontSize: "14px",
-  backgroundColor: "#282828",
-  color: "#ffffff",
-  border: "1px solid #555",
-  borderRadius: "4px",
-  cursor: "pointer",
-  boxShadow: "0 2px 4px rgba(0,0,0,0.3)",
-});
+      position: "fixed",
+      top: "10px",
+      left: "13.4vw",
+      zIndex: "9999",
+      padding: "6px 12px",
+      fontSize: "14px",
+      backgroundColor: "#282828",
+      color: "#ffffff",
+      border: "1px solid #555",
+      borderRadius: "4px",
+      cursor: "pointer",
+      boxShadow: "0 2px 4px rgba(0,0,0,0.3)",
+    });
 
-    const options = {
-      on: "🔁 Bật Auto Max",
-      off: "⛔ Tắt",
-    };
+    const firstOption = document.createElement("option");
+    firstOption.value = "on";
+    firstOption.textContent = "🔁 Tự động chất lượng cao nhất";
+    select.appendChild(firstOption);
 
-    for (const [value, label] of Object.entries(options)) {
-      const option = document.createElement("option");
-      option.value = value;
-      option.textContent = label;
-      select.appendChild(option);
+    // Lựa chọn hiện tại
+    if (qualityOverride && qualityOverride !== "on") {
+      const opt = document.createElement("option");
+      opt.value = qualityOverride;
+      opt.textContent = qualityOverride === "auto"
+        ? "⛔ Auto (Mặc định)"
+        : `🟢 ${qualityOverride}`;
+      select.appendChild(opt);
     }
 
-    select.value = isEnabled ? "on" : "off";
+    select.value = qualityOverride || "on";
 
     select.addEventListener("change", () => {
       const selected = select.value;
-      localStorage.setItem(STORAGE_KEY, selected);
-      isEnabled = selected === "on";
-      console.log("📶 Trạng thái Auto Max:", isEnabled ? "Bật" : "Tắt");
-
-      if (isEnabled) {
-        applyAutoQualityNow();
-      }
+      localStorage.setItem(QUALITY_KEY, selected);
+      qualityOverride = selected;
+      console.log("📶 Trạng thái:", selected);
+      applyAutoQualityNow();
     });
 
     document.body.appendChild(select);
