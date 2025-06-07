@@ -2,7 +2,7 @@
 // @name         YouTube Auto Skip Sponsor (SponsorBlock) + Segment Coloring
 // @namespace    eTog205-skip
 // @version      1.7
-// @description  Tự động bỏ qua sponsor, intro, outro... và hiển thị đoạn bị skip bằng màu trên thanh tiến trình YouTube 🎨 (Hợp đoạn gần nhau)
+// @description  Tự động bỏ qua sponsor, intro, outro...
 // @author       Gỗ
 // @match        https://www.youtube.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=youtube.com
