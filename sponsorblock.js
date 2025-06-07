@@ -7,8 +7,8 @@
 // @match        https://www.youtube.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=youtube.com
 // @grant        none
-// @updateURL    https://raw.githubusercontent.com/eTog205/ch-nqu-ngc-o-sponsorblock-/main/sponsorblock.js
-// @downloadURL  https://raw.githubusercontent.com/eTog205/ch-nqu-ngc-o-sponsorblock-/main/sponsorblock.js
+// @updateURL    https://raw.githubusercontent.com/eTog205/skip_time_yt/main/sponsorblock.js
+// @downloadURL  https://raw.githubusercontent.com/eTog205/skip_time_yt/main/sponsorblock.js
 // ==/UserScript==
 
 (function () {
